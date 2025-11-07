@@ -11,7 +11,7 @@ pub mod editor;
 pub mod input;
 pub mod ui;
 
-use crossterm::{
+use ratatui::crossterm::{
     event::{self, DisableMouseCapture, EnableMouseCapture, Event, KeyCode},
     execute,
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
@@ -23,6 +23,7 @@ use std::{
     error::Error,
     io,
 };
+use app::App;
 
 fn main() -> Result<(), Box<dyn Error>>{
     //===== TERMINAL SETUP =====//
@@ -32,8 +33,11 @@ fn main() -> Result<(), Box<dyn Error>>{
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
+    //===== APP ERSTELLEN =====//
+    let mut app = App::new()?;
+
     //===== EVENT-LOOP AUSFÜHREN =====//
-    let res = run_app(&mut terminal);
+    let res = run_app(&mut terminal, &mut app);
 
     //===== TERMINAL CLEANUP =====//
     disable_raw_mode()?;
@@ -53,20 +57,26 @@ fn main() -> Result<(), Box<dyn Error>>{
 }
 
 
-fn run_app<B: Backend>(terminal: &mut Terminal<B>) -> Result<(), Box<dyn Error>> {
+fn run_app<B: Backend>(terminal: &mut Terminal<B>, app: &mut App) -> Result<(), Box<dyn Error>> {
     loop {
         //===== UI ZEICHNEN =====//
-        terminal.draw(|frame| {
-            let area = frame.area();
-            let text = Paragraph::new("Hello VIM Editor! Press 'q' to quit.");
-            frame.render_widget(text, area);
-        })?;
+        terminal.draw(|frame| ui::render(frame, app))?;
 
         //===== EVENTS VERARBEITEN =====//
-        if let Event::Key(key) = event::read()? {
-            if key.code == KeyCode::Char('q') {
-                return Ok(());
+        let event = event::read()?;
+        
+        if let Event::Key(key) = event {
+            match key.code {
+                KeyCode::Char('q') => app.quit(),
+                _ => {
+                    // Explorer events weiterleiten
+                    app.file_explorer.handle(&event)?;
+                }
             }
+        }
+
+        if app.should_quit {
+            return Ok(())
         }
     }
 }
