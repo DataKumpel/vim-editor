@@ -10,9 +10,10 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
     Frame,
 };
+use ratatui_explorer::Theme;
 use crate::app::App;
 
-pub fn render(frame: &mut Frame, app: &App) {
+pub fn render(frame: &mut Frame, app: &mut App) {
     let area = frame.area();
 
     // Main layout: Explorer (~25%) | Editor (~75%)
@@ -42,15 +43,22 @@ pub fn render(frame: &mut Frame, app: &App) {
     render_command_line(frame, editor_chunks[2]);
 }
 
-fn render_explorer(frame: &mut Frame, app: &App, area: Rect) {
+fn render_explorer(frame: &mut Frame, app: &mut App, area: Rect) {
+    let theme = Theme::default()
+        .with_style(Style::default().bg(Color::Black).fg(Color::White))
+        .with_title_top(|_fe| format!("[ Explorer ]").into());
+
+    app.file_explorer.set_theme(theme);
+    
     // Render file explorer widget:
     frame.render_widget(&app.file_explorer.widget(), area);
 }
 
 fn render_text_area(frame: &mut Frame, area: Rect) {
     let block = Block::default()
-        .title(" Text Editor ")
+        .title("[ Text Editor ]")
         .borders(Borders::ALL)
+        .style(Style::default().bg(Color::Black))
         .border_style(Style::default().fg(Color::Green));
 
     let text = Paragraph::new("Hier wird Text angezeigt...\n\nDrücke 'q' zum Beenden.")

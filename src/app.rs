@@ -4,8 +4,7 @@
 //! orchestrates all the other modules and contains references for buffers, editor state
 //! and UI states.
 
-use ratatui::{prelude::Color, style::Style};
-use ratatui_explorer::{FileExplorer, Theme};
+use ratatui_explorer::FileExplorer;
 
 pub struct App {
     pub should_quit: bool,
@@ -14,12 +13,7 @@ pub struct App {
 
 impl App {
     pub fn new() -> Result<Self, std::io::Error> {
-        let theme = Theme::default()
-            .with_title_top(|_fe| format!("[ Explorer ]").into())
-            .with_style(Style::default().fg(Color::Cyan))
-            .with_highlight_symbol("> ".into());
-        
-        let file_explorer = FileExplorer::with_theme(theme)?;
+        let file_explorer = FileExplorer::new()?;
         
         Ok(Self {
             should_quit: false,
