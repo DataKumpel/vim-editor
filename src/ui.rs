@@ -19,8 +19,8 @@ pub fn render(frame: &mut Frame, app: &App) {
     let main_chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([
-            Constraint::Ratio(1, 4), // Explorer
-            Constraint::Ratio(3, 4), // Editor
+            Constraint::Ratio(1, 5), // Explorer
+            Constraint::Ratio(4, 5), // Editor
         ])
         .split(area);
 
@@ -43,16 +43,8 @@ pub fn render(frame: &mut Frame, app: &App) {
 }
 
 fn render_explorer(frame: &mut Frame, app: &App, area: Rect) {
-    let block = Block::default()
-        .title(" Explorer ")
-        .borders(Borders::ALL)
-        .border_style(Style::default().fg(Color::Cyan));
-
-    let inner_area = block.inner(area);
-    frame.render_widget(block, area);
-
     // Render file explorer widget:
-    frame.render_widget(&app.file_explorer.widget(), inner_area);
+    frame.render_widget(&app.file_explorer.widget(), area);
 }
 
 fn render_text_area(frame: &mut Frame, area: Rect) {
@@ -79,7 +71,7 @@ fn render_status_bar(frame: &mut Frame, area: Rect) {
 }
 
 fn render_command_line(frame: &mut Frame, area: Rect) {
-    let command = Paragraph::new("")
+    let command = Paragraph::new("Some Command...")
         .style(Style::default());
 
     frame.render_widget(command, area);
